@@ -1,6 +1,6 @@
 %% Homework 1, One-step error probability
 % Author: Anna Carlsson
-% Last updated: 2019-09-11
+% Last updated: 2019-09-12
 
 %% Code - with diagonal elements wii set to zero
 clc, clear all
