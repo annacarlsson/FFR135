@@ -21,23 +21,19 @@ for i = 1 : length(nbr_patterns)
     for j = 1 : nbr_trails
         
         % Generate random patterns and store in network
-        W = zeros(120,120);
         p = 2 * binornd(1, prob, [N, nbr_p]) - 1;
         
-        for k = 1 : nbr_p
-            W = W + p(:, k) * p(:, k)';
-        end
-        
-        W = W / N; % Normalize
-        W = W - diag(diag(W)); % Set diagonal elements to zero
-        
         % Randomly select pattern to input and neuron i to update
-        p_in = p(:, randi(nbr_p));
+        p_in = randi(nbr_p);
         n_i = randi(N);
         
+        % Store pattern in network
+        W_i = 1/N * p(n_i,:) * p';
+        W_i(n_i) = 0;
+        
         % Update neuron
-        S0 = sign(p_in(n_i)); 
-        S1 = sign(W(n_i,:) * p_in); 
+        S0 = sign(p(n_i,p_in));
+        S1 = sign(W_i * p(:,p_in)); 
         
         if S1 == 0
             S1 = 1;
@@ -52,8 +48,6 @@ for i = 1 : length(nbr_patterns)
     temp_error_prob = error_count/nbr_trails;
     error_probs = [error_probs temp_error_prob];
 end
-
-% Result: p = [0.0006, 0.0117, 0.0539, 0.0953, 0.1358, 0.1577]
 
 %% Code - with diagonal elements wii NOT set to zero
 clc, clear all
@@ -74,22 +68,19 @@ for i = 1 : length(nbr_patterns)
     for j = 1 : nbr_trails
         
         % Generate random patterns and store in network
-        W = zeros(120,120);
         p = 2 * binornd(1, prob, [N, nbr_p]) - 1;
         
-        for k = 1 : nbr_p
-            W = W + p(:, k) * p(:, k)';
-        end
-        
-        W = W / N; % Normalize
-        
         % Randomly select pattern to input and neuron i to update
-        p_in = p(:, randi(nbr_p));
+        p_in = randi(nbr_p);
         n_i = randi(N);
         
+        % Store pattern in network
+        W_i = 1/N * p(n_i,:) * p';
+        %W_i(n_i) = 0;
+        
         % Update neuron
-        S0 = sign(p_in(n_i)); 
-        S1 = sign(W(n_i,:) * p_in); 
+        S0 = sign(p(n_i,p_in));
+        S1 = sign(W_i * p(:,p_in)); 
         
         if S1 == 0
             S1 = 1;
@@ -104,5 +95,3 @@ for i = 1 : length(nbr_patterns)
     temp_error_prob = error_count/nbr_trails;
     error_probs = [error_probs temp_error_prob];
 end
-
-% Result: p = [0.0002, 0.0033, 0.0123, 0.0179, 0.0215, 0.0224]
