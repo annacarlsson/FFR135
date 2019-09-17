@@ -1,6 +1,6 @@
 %% Homework 1, One-step error probability
 % Author: Anna Carlsson
-% Last updated: 2019-09-14
+% Last updated: 2019-09-17
 
 %% Code - with diagonal elements wii set to zero
 clc, clear all
@@ -19,7 +19,7 @@ for i = 1 : length(nbr_patterns)
     % Perform 10^5 independent trials
     for j = 1 : nbr_trails
         
-        % Generate random patterns and store in network
+        % Generate random patterns
         p = 2 * randi([0, 1], [N, nbr_p]) - 1;
         
         % Randomly select pattern to input and neuron i to update
@@ -65,7 +65,7 @@ for i = 1 : length(nbr_patterns)
     % Perform 10^5 independent trials
     for j = 1 : nbr_trails
         
-        % Generate random patterns and store in network
+        % Generate random patterns
         p = 2 * randi([0, 1], [N, nbr_p]) - 1;
         
         % Randomly select pattern to input and neuron i to update
@@ -74,7 +74,6 @@ for i = 1 : length(nbr_patterns)
         
         % Store pattern in network
         W_i = 1/N * p(n_i,:) * p';
-        %W_i(n_i) = 0;
         
         % Update neuron
         S0 = sign(p(n_i,p_in));
