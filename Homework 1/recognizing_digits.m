@@ -32,7 +32,7 @@ x_dist_3 = [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, 
 X_dist = [x_dist_1, x_dist_2, x_dist_3];
 
 % Update bits using typewriter scheme
-pattern_nbr = 2; 
+pattern_nbr = 3; 
 X_prev = X_dist(:,pattern_nbr);
 
 converged = false;
