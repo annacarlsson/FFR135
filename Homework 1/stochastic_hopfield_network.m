@@ -5,9 +5,11 @@
 %% Code
 clc, clear all
 
-nbr_trails = 2*10^5;
+T = 2*10^5;
 N = 200; % number of neurons
 p = 7; % number of random patterns
+
+mu = zeros(1,100);
 
 for i = 1:100
    
@@ -26,17 +28,20 @@ for i = 1:100
     
     S_0 = patterns(:,1);
     
-    mu = zeros(1,nbr_trails);
+    mu_temp = zeros(1,T);
     
-    for j = 1 : nbr_trails
+    for t = 1 : T
         S_1 = S_0;
-        n_i = randi(N); % chose neuron randomly
-        b_i = 1/N * W(n_i,:) * S_0;
+        n_i = randi(N);
+        b_i = W(n_i,:) * S_0;
         prob = sigmf(b_i, [4,0]);
-        S_1(n_i) = randsrc(1, 1, [-1,1; prob, 1-prob]);
-        mu(j) = 1/N * S_1' * patterns(:,1);
+        S_1(n_i) = randsrc(1, 1, [1,-1; prob, 1-prob]);
+        mu_temp(t) = 1/N * S_1' * patterns(:,1);
         S_0 = S_1;
     end    
-    
+    mu(i) = 1 / T * sum(mu_temp);
 end
 mu_avg = 1/100 * sum(mu);
+
+%% 
+plot(mu_temp)
