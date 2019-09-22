@@ -7,7 +7,7 @@ clc, clear all
 
 T = 2*10^5;
 N = 200; % number of neurons
-p = 7; % number of random patterns
+p = 45; % number of random patterns
 
 mu = zeros(1,100);
 
