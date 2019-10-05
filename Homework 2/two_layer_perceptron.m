@@ -1,6 +1,6 @@
 %% Homework 2, Two-layer perceptron
 % Author: Anna Carlsson
-% Last updated: 2019-09-29
+% Last updated: 2019-10-05
 
 %% Code
 clc, clear all
@@ -13,68 +13,107 @@ val = val{:, :};
 n = length(train);
 m = length(val);
 
+class_one = train(:,3) == 1;
+
+figure(1)
+plot(train(class_one, 1), train(class_one, 2), 'r.')
+hold on
+plot(train(~class_one, 1), train(~class_one, 2), 'b.')
+
 % Settings
-learning_rate = 0.02;
-M1 = 3;
-M2 = 3;
-max_epochs = 10000;
+learning_rate = 0.01;
+M1 = 10;
+M2 = 5;
+max_epochs = 1000;
 
-% Weight and threshold initialization 
-W_1 = normrnd(0, 1, [M1, 2]);
-W_2 = normrnd(0, 1, [M2, M1]);
-W_3 = normrnd(0, 1, [1, M2]);
+% Weight and threshold initialization
+W1 = normrnd(0, 1, [M1, 2]);
+W2 = normrnd(0, 1, [M2, M1]);
+W3 = normrnd(0, 1, [1, M2]);
 
-theta_1 = zeros(2,1);
-theta_2 = zeros(M1,1);
-theta_3 = zeros(M2,1);
+theta1 = zeros(M1,1);
+theta2 = zeros(M2,1);
+theta3 = zeros(1,1);
 
 % Train network
 training_done = false;
-i = 0;
 epoch = 1;
 
-while (i < max_epochs * n && ~training_done)
+val_errors = zeros(1, max_epochs);
+
+while (epoch < max_epochs && ~training_done)
     
-    mu = randi(n);
-    input_pattern = train(mu);
-    
-    % Forward propagation
-    V1 = forward_propagation(theta_1, W_1, input_pattern);
-    V2 = forward_propagation(theta_2, W_2, V1);
-    output = forward_propagation(theta_3, W_3, V2);
-    
-    % Backpropagation
-    
-    % After each epoch, compute classification error from validation set
-    if (mod(i, m) == 0)
-        outputs = zeros(m,1);
+    % For one epoch, do
+    for j = 1 : n
+        mu = randi(n);
+        x = train(mu, 1:2)';
+        t = train(mu, 3);
         
-        for j = 1 : m
-            input_pattern_val = val(j,:);
-            V1_val = forward_propagation(theta_1, W_1, input_pattern_val);
-            V2_val = forward_propagation(theta_2, W_2, V1);
-            outputs(j) = forward_propagation(theta_3, W_3, V2);
-        end
+        % Forward propagation
+        V1 = tanh(b(theta1, W1, x));
+        V2 = tanh(b(theta2, W2, V1));
+        output = tanh(b(theta3, W3, V2));
         
-        val_errors = classification_error(outputs, val, m);
-        print(val_errors)
+        % Backpropagation
+        delta = (t - output) .* g_prim(b(theta3, W3, V2));
+        %delta = (t - output) .* (1 - output.^2);
+        dTheta3 = delta;
+        dW3 = delta .* V2';
+        delta = delta .* W3' .* g_prim(b(theta2, W2, V1));
+        %delta = delta .* W3' .* (1 - V2.^2);
+        dTheta2 = delta;
+        dW2 = delta * V1';
+        delta = (W2' * delta) .* g_prim(b(theta1, W1, x));
+        dTheta1 = delta;
+        dW1 = delta * x';
         
-        if (val_errors < 0.12)
-            training_done = true;
-        end
-            
-        epoch = epoch + 1; 
+        W1 = W1 + learning_rate * dW1;
+        W2 = W2 + learning_rate * dW2;
+        W3 = W3 + learning_rate * dW3;
+
+        theta1 = theta1 - learning_rate * dTheta1;
+        theta2 = theta2 - learning_rate * dTheta2;
+        theta3 = theta3 - learning_rate * dTheta3;
+        
     end
     
-    i = i + 1;
+    % After each epoch, compute classification error from validation set
+    outputs = zeros(m,1);
     
+    for k = 1 : m
+        x_val = val(k,1:2)';
+        V1_val = tanh(b(theta1, W1, x_val));
+        V2_val = tanh(b(theta2, W2, V1_val));
+        outputs(k) = tanh(b(theta3, W3, V2_val));
+    end
+    
+    val_error = classification_error(outputs, val, m);
+    val_errors(epoch) = val_error;
+    disp(['Epoch: ', num2str(epoch), ' Validation error: ', num2str(val_error)])
+    
+    
+    if (val_error < 0.12)
+        training_done = true;
+    end
+    
+    epoch = epoch + 1;
 end
+
+figure(2)
+class_one = sign(outputs) == 1;
+plot(val(class_one, 1), val(class_one, 2), 'r.')
+hold on
+plot(val(~class_one, 1), val(~class_one, 2), 'b.')
 
 % Definition of functions
-function V = forward_propagation(theta, W, input)
-    V = tanh(W * input - theta);
+function C = classification_error(outputs, valset, length_valset)
+C = 1 / (2*length_valset) * sum(abs(sign(outputs) - valset(:,3)));
 end
 
-function C = classification_error(outputs, valset, length_valset)
-    C = 1 / (2*length_valset) * sum(sign(outputs) - valset(:,3));
+function bval = b(theta, W, input)
+    bval = W * input - theta;
+end
+
+function gprim = g_prim(bval)
+    gprim = 1 - tanh(bval).^2;
 end
