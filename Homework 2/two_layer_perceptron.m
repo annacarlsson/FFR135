@@ -1,6 +1,6 @@
 %% Homework 2, Two-layer perceptron
 % Author: Anna Carlsson
-% Last updated: 2019-10-05
+% Last updated: 2019-10-06
 
 %% Code
 clc, clear all
@@ -13,8 +13,8 @@ val = val{:, :};
 n = length(train);
 m = length(val);
 
+% Plot of dataset with classes
 class_one = train(:,3) == 1;
-
 figure(1)
 plot(train(class_one, 1), train(class_one, 2), 'r.')
 hold on
@@ -56,11 +56,9 @@ while (epoch < max_epochs && ~training_done)
         
         % Backpropagation
         delta = (t - output) .* g_prim(b(theta3, W3, V2));
-        %delta = (t - output) .* (1 - output.^2);
         dTheta3 = delta;
         dW3 = delta .* V2';
         delta = delta .* W3' .* g_prim(b(theta2, W2, V1));
-        %delta = delta .* W3' .* (1 - V2.^2);
         dTheta2 = delta;
         dW2 = delta * V1';
         delta = (W2' * delta) .* g_prim(b(theta1, W1, x));
@@ -91,7 +89,6 @@ while (epoch < max_epochs && ~training_done)
     val_errors(epoch) = val_error;
     disp(['Epoch: ', num2str(epoch), ' Validation error: ', num2str(val_error)])
     
-    
     if (val_error < 0.12)
         training_done = true;
     end
@@ -99,13 +96,23 @@ while (epoch < max_epochs && ~training_done)
     epoch = epoch + 1;
 end
 
+% Plot predictions of validation set
 figure(2)
 class_one = sign(outputs) == 1;
 plot(val(class_one, 1), val(class_one, 2), 'r.')
 hold on
 plot(val(~class_one, 1), val(~class_one, 2), 'b.')
 
-% Definition of functions
+%% Export vectors
+csvwrite('w1.csv',W1)
+csvwrite('w2.csv',W2)
+csvwrite('w3.csv',W3')
+
+csvwrite('t1.csv',theta1)
+csvwrite('t2.csv',theta2)
+csvwrite('t3.csv',theta3)
+
+%% Definition of functions
 function C = classification_error(outputs, valset, length_valset)
 C = 1 / (2*length_valset) * sum(abs(sign(outputs) - valset(:,3)));
 end
