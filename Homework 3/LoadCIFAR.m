@@ -41,7 +41,7 @@ cifar10Data = tempdir;
 url = 'https://www.cs.toronto.edu/~kriz/cifar-10-matlab.tar.gz';  
 helperCIFAR10Data.download(url,cifar10Data);
 [trainingImages,trainingLabels,testImages,testLabels] = helperCIFAR10Data.load(cifar10Data);
-size(trainingImages)
+size(trainingImages);
 xTrain = trainingImages(:, :, :, 1:40000);
 tTrain = trainingLabels(1:40000);
 
