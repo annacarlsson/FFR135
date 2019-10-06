@@ -1,6 +1,6 @@
 %% Homework 2, Linear separability of 4-dimensional Boolean functions
 % Author: Anna Carlsson
-% Last updated: 2019-09-29
+% Last updated: 2019-10-06
 
 %% Code
 clc, clear all
@@ -18,27 +18,32 @@ D = [-1, -1, 1, -1, 1, 1, 1, -1, -1, 1, -1, 1, 1, 1, -1, -1];
 E = [-1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1, 1, 1];
 F = [1, 1, -1, -1, -1, -1, -1, 1, -1, -1, 1, 1, 1, -1, -1, 1];
 
-t = F; % choose which boolean function to use
+t = D; % choose which boolean function to use
 
 % Settings
-training_iterations = 10^5;
+max_iter = 10^5;
 learning_rate = 0.02;
 
 % Initialize weights and threshold
 N = size(x, 2); 
 W = -0.2 + (0.2 + 0.2) * rand(N,1);
 theta = -1 + 2 * rand(1);
-output = zeros(size(x,1),1);
+output = NaN(size(x,1),1)';
 
-for i = 1 : training_iterations
+for i = 1 : max_iter
     
     % Forward propagation
     mu = randi(16);
     x_mu = x(mu, :);
     t_mu = t(mu);
     b_mu = b(W, x_mu, theta);
+    
     O_mu = O(b_mu);
     output(mu) = O_mu;
+    
+    if (isequal(sign(output), t))
+        break
+    end
     
     % Backpropagation
     dtheta = dHdtheta(learning_rate, b_mu, O_mu, t_mu);
@@ -49,10 +54,7 @@ for i = 1 : training_iterations
     
 end
 
-% Check if resulting output is equal to target
-disp(isequal(sign(output'), t))
-
-% Definition of functions
+%% Definition of functions
 function b_mu = b(W, x_mu, theta)
     b_mu = -theta + W' * x_mu';
 end
