@@ -164,32 +164,23 @@ end
 test_error = classification_error(tTest, outputs_test);
 
 %% Definition of functions
-function [weights, thresholds, dW, dT] = initialize(M, input_size, output_size)
+function [weights, thresholds] = initialize(M, input_size, output_size)
 nbr_layers = nnz(M);
 nbr_neurons = M(M~=0);
 
 if nbr_layers == 0
     weights = {normrnd(0, sqrt(1/input_size), [output_size, input_size])};
     thresholds = {zeros(10,1)};
-    
-    dW = {zeros(output_size, input_size)};
-    dT = {zeros(10,1)};
 end
 
 if nbr_layers == 1
     weights = {normrnd(0, sqrt(1/input_size), [nbr_neurons, input_size]), normrnd(0, sqrt(1/nbr_neurons), [output_size, nbr_neurons])};
     thresholds = {zeros(nbr_neurons,1), zeros(10,1)};
-    
-    dW = {zeros(nbr_neurons, input_size), zeros(output_size, nbr_neurons)};
-    dT = {zeros(nbr_neurons,1), zeros(10,1)};
 end
 
 if nbr_layers == 2
     weights = {normrnd(0, sqrt(1/input_size), [nbr_neurons(1), input_size]), normrnd(0, sqrt(1/nbr_neurons(1)), [nbr_neurons(2), nbr_neurons(1)]), normrnd(0, sqrt(1/nbr_neurons(2)), [output_size, nbr_neurons(2)])};
     thresholds = {zeros(nbr_neurons(1),1), zeros(nbr_neurons(2),1), zeros(10,1)};
-    
-    dW = {zeros(nbr_neurons(1), input_size), zeros(nbr_neurons(2), nbr_neurons(1)), zeros(output_size, nbr_neurons(2))};
-    dT = {zeros(nbr_neurons(1),1), zeros(nbr_neurons(2),1), zeros(10,1)};
 end
 
 end
