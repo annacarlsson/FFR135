@@ -1,6 +1,6 @@
 %% Homework 3, Vanishing gradient
 % Author: Anna Carlsson
-% Last updated: 2019-10-08
+% Last updated: 2019-10-09
 
 %% Code
 clc, clear all
