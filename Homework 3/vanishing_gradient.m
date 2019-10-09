@@ -9,8 +9,6 @@ clc, clear all
 [xTrain, tTrain, xValid, tValid, xTest, tTest] = LoadCIFAR(2);
 mean = mean(xTrain, 2);
 xTrain = xTrain - mean;
-xValid = xValid - mean;
-xTest = xTest - mean;
 
 % Settings
 learning_rate = 0.01;
@@ -27,10 +25,13 @@ n = size(xTrain,2);
 
 % Train network
 epoch = 1;
+dT_all = cell(1, max_epochs);
 
 disp(['----- TRAINING NETWORK -----'])
-    
+
 while (epoch <= max_epochs)
+    
+    disp(['Epoch: ', num2str(epoch)])
     
     % Shuffle observations in training set
     index = randperm(n);
@@ -46,18 +47,18 @@ while (epoch <= max_epochs)
         t = tTrain(:, ((i-1) * batch_size + 1) : batch_size * i);
         
         % For each batch, reset gradients
-        [dW, dTheta] = setup_gradient_arrays(nbr_layers, output_size);
+        [dW, dTheta] = setup_gradient_arrays(layer_size, input_size, output_size);
         
         % For each pattern in batch, do
         for j = 1 : batch_size
-            state = cell(nbr_layer + 1, 1);
+            state = cell(nbr_layers + 1, 1);
             x_batch = x(:,j);
             t_batch = t(:,j);
             V_temp = x_batch;
             state(1) = {V_temp};
             
             % Forward propagation
-            for k = 1 : nbr_layer
+            for k = 1 : nbr_layers
                 V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
                 state(k+1) = {V_temp};
             end
@@ -65,12 +66,9 @@ while (epoch <= max_epochs)
             % Backpropagation
             delta = (t_batch - cell2mat(state(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state(end-1)), cell2mat(thresholds(end))));
             dTheta(end) = {cell2mat(dTheta(end)) + delta};
-            if size(cell2mat(dTheta(end)),2) == 2
-                disp('hej')
-            end
             dW(end) = {cell2mat(dW(end)) + delta * cell2mat(state(end-1))'};
             
-            for k = 1 : (nbr_layer - 1)
+            for k = 1 : (nbr_layers - 1)
                 delta = (cell2mat(weights(end-k+1))' * delta) .* g_prim(b(cell2mat(weights(end-k)), cell2mat(state(end-k-1)), cell2mat(thresholds(end-k))));
                 dTheta(end-k) = {cell2mat(dTheta(end-k)) + delta};
                 dW(end-k) = {cell2mat(dW(end-k)) + delta * cell2mat(state(end-k-1))'};
@@ -78,59 +76,42 @@ while (epoch <= max_epochs)
             
         end
         
-        for j = 1 : nbr_layer
+        for j = 1 : nbr_layers
             weights(j) = {cell2mat(weights(j)) + learning_rate * cell2mat(dW(j))};
             thresholds(j) = {cell2mat(thresholds(j)) - learning_rate * cell2mat(dTheta(j))};
         end
         
     end
     
-    % Compute error for validation set and training set
-    state_val = cell(nbr_layer + 1, 1);
-    m = size(xValid,2);
+    % Compute dT for all layers using all training data
+    [dW, dTheta] = setup_gradient_arrays(layer_size, input_size, output_size);
     
-    % For each pattern in validation set
-    outputs_val = zeros(10, m);
-    for j = 1 : m
-        x_val = xValid(:,j);
-        V_temp = x_val;
-            
+    for j = 1 : size(xTrain,2)
+        state = cell(nbr_layers + 1, 1);
+        x = xTrain(:,j);
+        t = tTrain(:,j);
+        V_temp = x;
+        state(1) = {V_temp};
+        
         % Forward propagation
-        for k = 1 : nbr_layer
+        for k = 1 : nbr_layers
             V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
+            state(k+1) = {V_temp};
         end
-        outputs_val(:,j) = V_temp;
+        
+        % Backpropagation
+        delta_ls = (t - cell2mat(state(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state(end-1)), cell2mat(thresholds(end))));
+        dTheta(end) = {cell2mat(dTheta(end)) + delta_ls};
+        
+        for k = 1 : (nbr_layers - 1)
+            delta_ls = (cell2mat(weights(end-k+1))' * delta_ls) .* g_prim(b(cell2mat(weights(end-k)), cell2mat(state(end-k-1)), cell2mat(thresholds(end-k))));
+            dTheta(end-k) = {cell2mat(dTheta(end-k)) + delta_ls};
+        end
+        
     end
     
-    % Compute validation error
-    temp_valerror = classification_error(tValid, outputs_val);
-    val_errors(epoch) = temp_valerror;
-    
-    % For each pattern in training set
-    outputs_train = zeros(10, n);
-    for j = 1 : n
-        x_train = xTrain(:,j);
-        V_temp = x_train;
-            
-        % Forward propagation
-        for k = 1 : nbr_layer
-            V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
-        end
-        outputs_train(:,j) = V_temp;
-    end
-    
-    % Compute validation error
-    temp_trainerror = classification_error(tTrain, outputs_train);
-    train_errors(epoch) = temp_trainerror;
-
-    disp(['Epoch: ', num2str(epoch), '  Train error: ', num2str(temp_trainerror), ' Val. error: ', num2str(temp_valerror)])
-    
-    % Save weights and thresholds for current epoch
-    weights_all(epoch) = weights;
-    thresholds_all(epoch) = thresholds;
-    
+    dT_all{epoch} = dTheta;
     epoch = epoch + 1;
-
 end
 
 %% Definition of functions
@@ -141,25 +122,27 @@ weights(1) = {normrnd(0, sqrt(1/input_size), [layer_size, input_size])};
 
 % For each of the hidden layers -> next hidden layer
 for i = 2 : 4
-   weights(i) = {normrnd(0, sqrt(1/layer_size), [layer_size, layer_size])}; 
-   thresholds(i-1) = {zeros(layer_size,1)};
+    weights(i) = {normrnd(0, sqrt(1/layer_size), [layer_size, layer_size])};
+    thresholds(i-1) = {zeros(layer_size,1)};
 end
 
-weights(5) = {normrnd(0, sqrt(1/input_size), [output_size, input_size])};
-thresholds(4) = {zeros(output_size,1)};
-
+weights(5) = {normrnd(0, sqrt(1/input_size), [output_size, layer_size])};
+thresholds(4) = {zeros(layer_size,1)};
+thresholds(5) = {zeros(output_size,1)};
 end
 
-function [dW, dT] = setup_gradient_arrays(layer_size, output_size)
+function [dW, dT] = setup_gradient_arrays(layer_size, input_size, output_size)
+dW(1) = {zeros(layer_size, input_size)};
 
 % For each of the hidden layers -> next hidden layer
 for i = 2 : 4
-   dW(i) = {zeros(layer_size, layer_size)};
-   dT(i-1) = {zeros(layer_size,1)};
+    dW(i) = {zeros(layer_size, layer_size)};
+    dT(i-1) = {zeros(layer_size,1)};
 end
 
 dW(5) = {zeros(output_size, layer_size)};
-dT(4) = {zeros(output_size,1)};
+dT(4) = {zeros(layer_size,1)};
+dT(5) = {zeros(output_size,1)};
 
 end
 
