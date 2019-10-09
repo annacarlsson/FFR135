@@ -73,9 +73,6 @@ while (epoch <= max_epochs)
             % Backpropagation
             delta = (t_batch - cell2mat(state(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state(end-1)), cell2mat(thresholds(end))));
             dTheta(end) = {cell2mat(dTheta(end)) + delta};
-            if size(cell2mat(dTheta(end)),2) == 2
-                disp('hej')
-            end
             dW(end) = {cell2mat(dW(end)) + delta * cell2mat(state(end-1))'};
             
             for k = 1 : (n_layer - 1)
@@ -134,8 +131,8 @@ while (epoch <= max_epochs)
     disp(['Epoch: ', num2str(epoch), '  Train error: ', num2str(temp_trainerror), ' Val. error: ', num2str(temp_valerror)])
     
     % Save weights and thresholds for current epoch
-    weights_all(epoch) = weights;
-    thresholds_all(epoch) = thresholds;
+    weights_all{epoch} = weights;
+    thresholds_all{epoch} = thresholds;
     
     epoch = epoch + 1;
 
