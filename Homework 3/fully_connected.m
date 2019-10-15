@@ -207,14 +207,14 @@ train_error_4 = [0.9006,0.8995,0.6654,0.5926,0.5609,0.5486,0.5215,0.5177,0.4982,
 val_error_4 = [0.8975,0.9020,0.6735,0.6062,0.5900,0.5862,0.5667,0.5672,0.5540,0.5514,0.5581,0.5489,0.5522,0.5481,0.5438,0.5386,0.5431,0.5401,0.5491,0.5420,0.5469];
 
 epochs = linspace(0,20,21);
-plot(epochs, train_error_1,'LineWidth',1.5,'Color',[0, 0.4470, 0.7410]); hold on
-plot(epochs, val_error_1,'--','LineWidth',1.5, 'Color',[0, 0.4470, 0.7410]);
-plot(epochs, train_error_2,'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]); 
-plot(epochs, val_error_2,'--','LineWidth',1.5, 'Color',[0.4660, 0.6740, 0.1880]);
-plot(epochs, train_error_3,'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]); 
-plot(epochs, val_error_3,'--','LineWidth',1.5, 'Color',[0.6350, 0.0780, 0.1840]);
-plot(epochs, train_error_4,'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]); 
-plot(epochs, val_error_4,'--','LineWidth',1.5, 'Color',[0.9290, 0.6940, 0.1250]);
+semilogy(epochs, train_error_1,'LineWidth',1.5,'Color',[0, 0.4470, 0.7410]); hold on
+semilogy(epochs, val_error_1,'--','LineWidth',1.5, 'Color',[0, 0.4470, 0.7410]);
+semilogy(epochs, train_error_2,'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]); 
+semilogy(epochs, val_error_2,'--','LineWidth',1.5, 'Color',[0.4660, 0.6740, 0.1880]);
+semilogy(epochs, train_error_3,'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]); 
+semilogy(epochs, val_error_3,'--','LineWidth',1.5, 'Color',[0.6350, 0.0780, 0.1840]);
+semilogy(epochs, train_error_4,'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]); 
+semilogy(epochs, val_error_4,'--','LineWidth',1.5, 'Color',[0.9290, 0.6940, 0.1250]);
 
 ax = gca;
 ax.FontSize = 11; 
