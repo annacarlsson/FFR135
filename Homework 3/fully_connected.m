@@ -283,6 +283,5 @@ end
 function C = classification_error(target, outputs)
 length_valset = size(target, 2);
 outputs = double(bsxfun(@eq, outputs, max(outputs, [], 1)));
-
 C = 1 / (2*length_valset) * sum(abs(outputs - target),'all');
 end
