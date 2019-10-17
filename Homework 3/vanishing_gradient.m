@@ -1,6 +1,6 @@
 %% Homework 3, Vanishing gradient
 % Author: Anna Carlsson
-% Last updated: 2019-10-09
+% Last updated: 2019-10-17
 
 %% Code
 clc, clear all
@@ -113,6 +113,33 @@ while (epoch <= max_epochs)
     dT_all{epoch} = dTheta;
     epoch = epoch + 1;
 end
+
+%% Create plot of learning speeds
+
+learning_speeds = zeros(max_epochs,5);
+
+for e = 1 : max_epochs
+    for l = 1 : nbr_layers
+        temp_U_vec = dT_all{e}{l};
+        learning_speeds(e,l) = norm(temp_U_vec);
+    end    
+end
+
+epochs = linspace(1,100,100);
+semilogy(epochs, learning_speeds(:,1),'LineWidth',1.5,'Color',[0, 0.4470, 0.7410]); hold on
+semilogy(epochs, learning_speeds(:,2),'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]); 
+semilogy(epochs, learning_speeds(:,3),'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]); 
+semilogy(epochs, learning_speeds(:,4),'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]); 
+semilogy(epochs, learning_speeds(:,5),'LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]); 
+
+ax = gca;
+ax.FontSize = 11; 
+
+legend('Layer 1', 'Layer 2', 'Layer 3', 'Layer 4', 'Layer 5', 'Location', 'Southeast', 'fontsize',11);
+
+title('Learning speeds for layers as function of epoch', 'fontsize',14)
+xlabel('Epoch', 'fontsize', 12)
+ylabel('Learning speed', 'fontsize',12)
 
 %% Definition of functions
 function [weights, thresholds] = initialize(layer_size, input_size, output_size)
