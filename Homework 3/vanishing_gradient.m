@@ -14,7 +14,7 @@ xTrain = xTrain - mean;
 learning_rate = 0.01;
 nbr_layers = 5;
 layer_size = 20;
-max_epochs = 100;
+max_epochs = 1000;
 batch_size = 100;
 
 % Initialize weights and thresholds
@@ -125,7 +125,7 @@ for e = 1 : max_epochs
     end    
 end
 
-epochs = linspace(1,100,100);
+epochs = linspace(1,max_epochs,max_epochs);
 semilogy(epochs, learning_speeds(:,1),'LineWidth',1.5,'Color',[0, 0.4470, 0.7410]); hold on
 semilogy(epochs, learning_speeds(:,2),'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]); 
 semilogy(epochs, learning_speeds(:,3),'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]); 
