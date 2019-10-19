@@ -169,6 +169,7 @@ semilogy(epochs, learning_speeds(:,2),'LineWidth',1.5,'Color',[0.4660, 0.6740, 0
 semilogy(epochs, learning_speeds(:,3),'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]);
 semilogy(epochs, learning_speeds(:,4),'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]);
 semilogy(epochs, learning_speeds(:,5),'LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]);
+xlim([0 100])
 
 ax = gca;
 ax.FontSize = 11;
