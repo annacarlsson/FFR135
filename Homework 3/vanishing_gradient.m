@@ -14,7 +14,7 @@ xTrain = xTrain - mean;
 learning_rate = 0.01;
 nbr_layers = 5;
 layer_size = 20;
-max_epochs = 1000;
+max_epochs = 100;
 batch_size = 100;
 
 % Initialize weights and thresholds
@@ -23,9 +23,43 @@ output_size = 10;
 n = size(xTrain,2);
 [weights, thresholds] = initialize(layer_size, input_size, output_size);
 
-% Train network
+% Compute initial learning speed
 epoch = 1;
-dT_all = cell(1, max_epochs);
+dT_all = cell(1, max_epochs + 1);
+
+[dW, dTheta] = setup_gradient_arrays(layer_size, input_size, output_size);
+
+for j = 1 : size(xTrain,2)
+    state_init = cell(nbr_layers + 1, 1);
+    x = xTrain(:,j);
+    t = tTrain(:,j);
+    V_temp = x;
+    state_init(1) = {V_temp};
+    
+    % Forward propagation
+    for k = 1 : nbr_layers
+        V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
+        state_init(k+1) = {V_temp};
+    end
+    
+    % Backpropagation
+    delta_ls = (t - cell2mat(state_init(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state_init(end-1)), cell2mat(thresholds(end))));
+    dTheta(end) = {cell2mat(dTheta(end)) + delta_ls};
+    
+    for k = 1 : (nbr_layers - 1)
+        delta_ls = (cell2mat(weights(end-k+1))' * delta_ls) .* g_prim(b(cell2mat(weights(end-k)), cell2mat(state_init(end-k-1)), cell2mat(thresholds(end-k))));
+        dTheta(end-k) = {cell2mat(dTheta(end-k)) + delta_ls};
+    end
+    
+end
+
+for layer = 1 : (nbr_layers)
+    dTheta{layer} = dTheta{layer}/size(xTrain,2);
+end
+
+dT_all{epoch} = dTheta;
+
+% Train network
 
 disp(['----- TRAINING NETWORK -----'])
 
@@ -110,30 +144,34 @@ while (epoch <= max_epochs)
         
     end
     
-    dT_all{epoch} = dTheta;
+    for layer = 1 : (nbr_layers)
+        dTheta{layer} = dTheta{layer}/size(xTrain,2);
+    end
+    
+    dT_all{epoch + 1} = dTheta;
     epoch = epoch + 1;
 end
 
 %% Create plot of learning speeds
 
-learning_speeds = zeros(max_epochs,5);
+learning_speeds = zeros(max_epochs + 1, 5);
 
-for e = 1 : max_epochs
+for e = 1 : (max_epochs + 1)
     for l = 1 : nbr_layers
         temp_U_vec = dT_all{e}{l};
         learning_speeds(e,l) = norm(temp_U_vec);
-    end    
+    end
 end
 
-epochs = linspace(1,max_epochs,max_epochs);
+epochs = linspace(1,max_epochs + 1,max_epochs + 1);
 semilogy(epochs, learning_speeds(:,1),'LineWidth',1.5,'Color',[0, 0.4470, 0.7410]); hold on
-semilogy(epochs, learning_speeds(:,2),'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]); 
-semilogy(epochs, learning_speeds(:,3),'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]); 
-semilogy(epochs, learning_speeds(:,4),'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]); 
-semilogy(epochs, learning_speeds(:,5),'LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]); 
+semilogy(epochs, learning_speeds(:,2),'LineWidth',1.5,'Color',[0.4660, 0.6740, 0.1880]);
+semilogy(epochs, learning_speeds(:,3),'LineWidth',1.5,'Color',[0.6350, 0.0780, 0.1840]);
+semilogy(epochs, learning_speeds(:,4),'LineWidth',1.5,'Color',[0.9290, 0.6940, 0.1250]);
+semilogy(epochs, learning_speeds(:,5),'LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]);
 
 ax = gca;
-ax.FontSize = 11; 
+ax.FontSize = 11;
 
 legend('Layer 1', 'Layer 2', 'Layer 3', 'Layer 4', 'Layer 5', 'Location', 'Southeast', 'fontsize',11);
 
