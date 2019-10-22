@@ -21,11 +21,14 @@ batch_size = 100;
 input_size = 3072;
 output_size = 10;
 n = size(xTrain,2);
+m = size(xValid,2);
 [weights, thresholds] = initialize(layer_size, input_size, output_size);
 
 % Compute initial learning speed
 epoch = 1;
 dT_all = cell(1, max_epochs + 1);
+outputs_train_init = zeros(10, n);
+energy_all = zeros(1, max_epochs + 1);
 
 [dW, dTheta] = setup_gradient_arrays(layer_size, input_size, output_size);
 
@@ -41,6 +44,8 @@ for j = 1 : size(xTrain,2)
         V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
         state_init(k+1) = {V_temp};
     end
+    
+    outputs_train_init(:,j) = V_temp;
     
     % Backpropagation
     delta_ls = (t - cell2mat(state_init(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state_init(end-1)), cell2mat(thresholds(end))));
@@ -58,6 +63,9 @@ for layer = 1 : (nbr_layers)
 end
 
 dT_all{epoch} = dTheta;
+
+% Compute the initial energy H
+energy_all(epoch) = H(tTrain, outputs_train_init);
 
 % Train network
 
@@ -119,6 +127,7 @@ while (epoch <= max_epochs)
     
     % Compute dT for all layers using all training data
     [dW, dTheta] = setup_gradient_arrays(layer_size, input_size, output_size);
+    outputs_train = zeros(10, n);
     
     for j = 1 : size(xTrain,2)
         state = cell(nbr_layers + 1, 1);
@@ -132,6 +141,7 @@ while (epoch <= max_epochs)
             V_temp = sigmoid(b(cell2mat(weights(k)), V_temp, cell2mat(thresholds(k))));
             state(k+1) = {V_temp};
         end
+        outputs_train(:,j) = V_temp;
         
         % Backpropagation
         delta_ls = (t - cell2mat(state(end))) .* g_prim(b(cell2mat(weights(end)), cell2mat(state(end-1)), cell2mat(thresholds(end))));
@@ -149,6 +159,8 @@ while (epoch <= max_epochs)
     end
     
     dT_all{epoch + 1} = dTheta;
+    energy_all(epoch + 1) = H(tTrain, outputs_train);
+    
     epoch = epoch + 1;
 end
 
@@ -179,6 +191,18 @@ legend('Layer 1', 'Layer 2', 'Layer 3', 'Layer 4', 'Layer 5', 'Location', 'South
 title('Learning speeds for layers as function of epoch', 'fontsize',14)
 xlabel('Epoch', 'fontsize', 12)
 ylabel('Learning speed', 'fontsize',12)
+
+%% Create plot of energy as function of epoch
+figure(2)
+plot(epochs, energy_all, 'LineWidth', 1.5,'Color',[0, 0.4470, 0.7410]); hold on
+xlim([0 100])
+
+ax = gca;
+ax.FontSize = 11;
+
+title('Loss as function of epoch', 'fontsize',14)
+xlabel('Epoch', 'fontsize', 12)
+ylabel('Loss', 'fontsize',12)
 
 %% Definition of functions
 function [weights, thresholds] = initialize(layer_size, input_size, output_size)
@@ -222,4 +246,10 @@ end
 
 function g = g_prim(bval)
 g = sigmoid(bval) .* (1 - sigmoid(bval));
+end
+
+function h = H(target, outputs)
+length_valset = size(target, 2);
+outputs = double(bsxfun(@eq, outputs, max(outputs, [], 1)));
+h = 0.5 * sum((outputs-target).^2,'all');
 end
