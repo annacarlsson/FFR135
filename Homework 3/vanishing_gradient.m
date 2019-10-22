@@ -194,7 +194,7 @@ ylabel('Learning speed', 'fontsize',12)
 
 %% Create plot of energy as function of epoch
 figure(2)
-plot(epochs, energy_all); hold on
+plot(epochs, energy_all, 'LineWidth', 1.5,'Color',[0, 0.4470, 0.7410]); hold on
 xlim([0 100])
 
 ax = gca;
