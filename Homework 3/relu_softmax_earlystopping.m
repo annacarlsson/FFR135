@@ -10,6 +10,7 @@ clc, clear all
 
 % Settings
 options = trainingOptions('sgdm', ...
+    'Momentum', 0.9, ...
     'InitialLearnRate',0.001, ...
     'MaxEpochs',400, ...
     'MiniBatchSize',8192, ...
@@ -17,7 +18,7 @@ options = trainingOptions('sgdm', ...
     'ValidationData',{xValid,tValid}, ...
     'ValidationFrequency',30, ...
     'ValidationPatience',3, ...
-    'Plots','training-progress')
+    'Plots','training-progress');
 
 % Define layers
 layers = [
@@ -34,16 +35,16 @@ layers = [
     classificationLayer];
 
 % Train network
-net = trainNetwork(xTrain, tTrain, layers, options);
+net_1 = trainNetwork(xTrain, tTrain, layers, options);
 
 % Compute scores
-[pred_train, scores_train] = classify(net, xTrain);
-[pred_valid, scores_valid] = classify(net, xValid);
-[pred_test, scores_test] = classify(net, xTest);
+[pred_train_1, scores_train_1] = classify(net_1, xTrain);
+[pred_valid_1, scores_valid_1] = classify(net_1, xValid);
+[pred_test_1, scores_test_1] = classify(net_1, xTest);
 
-C_train = classification_error(tTrain, pred_train);
-C_valid = classification_error(tValid, pred_valid);
-C_test = classification_error(tTest, pred_test);
+C_train_1 = classification_error(tTrain, pred_train_1);
+C_valid_1 = classification_error(tValid, pred_valid_1);
+C_test_1 = classification_error(tTest, pred_test_1);
 
 %% Network 2
 clc, clear all
@@ -53,6 +54,7 @@ clc, clear all
 
 % Settings
 options = trainingOptions('sgdm', ...
+    'Momentum', 0.9, ...
     'InitialLearnRate',0.003, ...
     'MaxEpochs',400, ...
     'MiniBatchSize', 8192, ...
@@ -80,16 +82,16 @@ layers = [
     classificationLayer];
 
 % Train network
-net = trainNetwork(xTrain, tTrain, layers, options);
+net_2 = trainNetwork(xTrain, tTrain, layers, options);
 
 % Compute scores
-[pred_train, scores_train] = classify(net, xTrain);
-[pred_valid, scores_valid] = classify(net, xValid);
-[pred_test, scores_test] = classify(net, xTest);
+[pred_train_2, scores_train_2] = classify(net_2, xTrain);
+[pred_valid_2, scores_valid_2] = classify(net_2, xValid);
+[pred_test_2, scores_test_2] = classify(net_2, xTest);
 
-C_train = classification_error(tTrain, pred_train);
-C_valid = classification_error(tValid, pred_valid);
-C_test = classification_error(tTest, pred_test);
+C_train_2 = classification_error(tTrain, pred_train_2);
+C_valid_2 = classification_error(tValid, pred_valid_2);
+C_test_2 = classification_error(tTest, pred_test_2);
 
 %% Network 3
 clc, clear all
@@ -99,6 +101,7 @@ clc, clear all
 
 % Settings
 options = trainingOptions('sgdm', ...
+    'Momentum', 0.9, ...
     'InitialLearnRate',0.001, ...
     'MaxEpochs',400, ...
     'MiniBatchSize',8192, ...
@@ -107,7 +110,7 @@ options = trainingOptions('sgdm', ...
     'ValidationData',{xValid,tValid}, ...
     'ValidationFrequency',30, ...
     'ValidationPatience',3, ...
-    'Plots','training-progress')
+    'Plots','training-progress');
 
 % Define layers
 layers = [
@@ -124,16 +127,16 @@ layers = [
     classificationLayer];
 
 % Train network
-net = trainNetwork(xTrain, tTrain, layers, options);
+net_3 = trainNetwork(xTrain, tTrain, layers, options);
 
 % Compute scores
-[pred_train, scores_train] = classify(net, xTrain);
-[pred_valid, scores_valid] = classify(net, xValid);
-[pred_test, scores_test] = classify(net, xTest);
+[pred_train_3, scores_train_2] = classify(net_3, xTrain);
+[pred_valid_3, scores_valid_3] = classify(net_3, xValid);
+[pred_test_3, scores_test_3] = classify(net_3, xTest);
 
-C_train = classification_error(tTrain, pred_train);
-C_valid = classification_error(tValid, pred_valid);
-C_test = classification_error(tTest, pred_test);
+C_train_3 = classification_error(tTrain, pred_train_3);
+C_valid_3 = classification_error(tValid, pred_valid_3);
+C_test_3 = classification_error(tTest, pred_test_3);
 
 %% Definition of functions
 function C = classification_error(target, outputs)
