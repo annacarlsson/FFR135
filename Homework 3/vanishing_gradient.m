@@ -249,7 +249,7 @@ g = sigmoid(bval) .* (1 - sigmoid(bval));
 end
 
 function h = H(target, outputs)
-length_valset = size(target, 2);
-outputs = double(bsxfun(@eq, outputs, max(outputs, [], 1)));
+%length_valset = size(target, 2);
+%outputs = double(bsxfun(@eq, outputs, max(outputs, [], 1)));
 h = 0.5 * sum((outputs-target).^2,'all');
 end
